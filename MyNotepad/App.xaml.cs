@@ -22,6 +22,64 @@ namespace MyNotepad
     /// </summary>
     sealed partial class App : Application
     {
+        public App() { InitializeComponent(); }
+
+        Frame RootFrame => (Window.Current.Content as Frame)
+            ?? (Window.Current.Content = new Frame()) as Frame;
+
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
+        {
+            //is the application being launched by the jumplist?
+            //if so then the tileid is set to app and there would be arguments supplied.
+            var jumpList = e.TileId == "App" && !string.IsNullOrEmpty(e.Arguments);
+            if (jumpList)
+            {
+                try
+                {
+                    //if it is a jumplist item, then you can locate the file by the path provided in the arguments.
+                    var file = await Windows.Storage.StorageFile.GetFileFromPathAsync(e.Arguments);
+                    if (RootFrame.Content == null)
+                        // then navigate to the page passing the file.
+                        RootFrame.Navigate(typeof(MyNotepad.Views.MainPage), file);
+                    else
+                        // if we've already navigated to the file, because the content is not null, then no need in
+                        // navigating again.
+                        FileReceived?.Invoke(this, file);
+                }
+                catch (Exception) { throw; }
+            }
+            else
+            {
+                RootFrame.Navigate(typeof(MyNotepad.Views.MainPage), e.Arguments);
+            }
+            Window.Current.Activate();
+        }
+
+        //this event fires when a user double-clicks on a text file.
+        protected override void OnFileActivated(FileActivatedEventArgs args)
+        {
+            //should this be removed or called prior to custom code.
+            //base.OnFileActivated(args);
+
+            //if no files passed, gracefully exit event handler.
+            if (!args.Files.Any())
+                return;
+
+            //if the application is already running, no need to navigate, just raise the event handler to load the file.
+            //otherwise navigate to the main page and pass in the file to the OnNavigatedTo event handler.
+            if (args.PreviousExecutionState == ApplicationExecutionState.Running)
+                FileReceived?.Invoke(this, args.Files.First() as Windows.Storage.StorageFile);
+            else
+                RootFrame.Navigate(typeof(MyNotepad.Views.MainPage), args.Files.First());
+
+            Window.Current.Activate();
+        }
+
+        //handle file received while application is running.
+        public static event EventHandler<Windows.Storage.StorageFile> FileReceived;
+
+        #region TEMPLATE CODE
+        /*
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -66,7 +124,7 @@ namespace MyNotepad
                     // When the navigation stack isn't restored navigate to the first page,
                     // configuring the new page by passing required information as a navigation
                     // parameter
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    rootFrame.Navigate(typeof(MyNotepad.Views.MainPage), e.Arguments);
                 }
                 // Ensure the current window is active
                 Window.Current.Activate();
@@ -96,5 +154,7 @@ namespace MyNotepad
             //TODO: Save application state and stop any background activity
             deferral.Complete();
         }
+        */
+        #endregion
     }
 }
