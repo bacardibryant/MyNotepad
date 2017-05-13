@@ -5,6 +5,7 @@ using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using MyNotepad.Views;
+using System.Threading.Tasks;
 
 namespace MyNotepad.ViewModels
 {
@@ -32,7 +33,8 @@ namespace MyNotepad.ViewModels
         }
 
         Services.FileService _FileService = new Services.FileService();
-        
+        Services.ToastService _ToastService = new Services.ToastService();
+
         public async void Open()
         {
             // prompt a picker
@@ -53,25 +55,48 @@ namespace MyNotepad.ViewModels
 
         public async void Save()
         {
+            //if this is a new file, (meaning no file was opened, then build the fileinfo model)
             if (File == null)
             {
+                // get the current frame so that you can get the contents of the textbox.
                 Frame frame = (Frame)Window.Current.Content;
                 MainPage page = (MainPage)frame.Content;
                 TextBox textBox = (TextBox)page.FindName("textBox");
+
+                // set text value to contents of textbox or to an empty string.
                 File = new Models.FileInfo
                 {
                     Text = textBox.Text ?? ""
                 };
+
+                // use a save file picker to allow the user to save the file.
                 GetPicker(File);
             }
             else
-                await _FileService.SaveAsync(File);
+            {
+                try
+                {
+                    // if the file existed, try and save.
+                    await _FileService.SaveAsync(File);
+
+                    // display a toast notification to let the user know that the file was saved.
+                    _ToastService.ShowToast(File, "File successfully saved.");
+                } catch (Exception ex)
+                {
+                    // if there was an error, display a toast notifying the user.
+                    _ToastService.ShowToast(File, $"Save failed: {ex.Message}");
+                }
+            }
         }
 
         public async void GetPicker(Models.FileInfo model)
         {
-            if (EnsureUnsnapped())
+            //if the application window is snapped the save file picker will not display
+            //so ensure that it isn't snapped.
+            var unSnapped = await EnsureUnsnapped();
+            if (unSnapped)
             {
+                //instantiate a save file picker and set it's default location to the 'Documents' folder.
                 FileSavePicker savePicker = new FileSavePicker()
                 {
                     SuggestedStartLocation = PickerLocationId.DocumentsLibrary
@@ -83,43 +108,67 @@ namespace MyNotepad.ViewModels
                 // Default file name if the user does not type one in or select a file to replace
                 savePicker.SuggestedFileName = "New Document";
 
+                // the save file picker returns an instance of windows storage file when the file is saved.
+                // if the user clicks cancel on the save dialog, the storage file object will be null.
                 Windows.Storage.StorageFile file = await savePicker.PickSaveFileAsync();
 
+                // if the file is not null
                 if (file != null)
                 {
                     // Prevent updates to the remote version of the file until we finish making changes and call CompleteUpdatesAsync.
                     Windows.Storage.CachedFileManager.DeferUpdates(file);
+                    
                     // write to file
                     await Windows.Storage.FileIO.WriteTextAsync(file, model.Text);
+                    
                     // Let Windows know that we're finished changing the file so the other app can update the remote version of the file.
                     // Completing updates may require Windows to ask for user input.
                     Windows.Storage.Provider.FileUpdateStatus status = await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
+
+                    // populate model fields to be used in toast notifications.
+                    model.Name = file.Name;
+                    model.Ref = file;
+
+                    // when the file update status is complete, notify the user that the file save was successful.
                     if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
                     {
-                        await new Windows.UI.Popups.MessageDialog($"{file.Name} was saved.").ShowAsync();
+                        // moved from using MessageDialogs to ToastNotifications
+                        //await new Windows.UI.Popups.MessageDialog($"{file.Name} was saved.").ShowAsync();
+                        _ToastService.ShowToast(model, $"{file.Name} successfully saved.");
                     }
                     else
                     {
-                        await new Windows.UI.Popups.MessageDialog($"{file.Name} could not be saved.").ShowAsync();
+                        // if the file update status did not complete for some reason, notify the user that the save failed.
+
+                        // moved from using MessageDialogs to ToastNotifications
+                        //await new Windows.UI.Popups.MessageDialog($"{file.Name} could not be saved.").ShowAsync();
+                        _ToastService.ShowToast(model, $"{file.Name} could not be saved.");
                     }
                 }
                 else
                 {
-                    await new Windows.UI.Popups.MessageDialog("Save cancelled.").ShowAsync();
+                    //again if the user clicked cancel on the save picker, then notify the user that the save was cancelled.
+
+                    // moved from using MessageDialogs to ToastNotifications
+                    //await new Windows.UI.Popups.MessageDialog("Save cancelled.").ShowAsync();
+                    _ToastService.ShowToast(model, "Save cancelled.");
                 }
             }
         }
 
-        internal bool EnsureUnsnapped()
+        //TODO:Address obsolete code.
+        internal async Task<bool> EnsureUnsnapped()
         {
             // FilePicker APIs will not work if the application is in a snapped state.
             // If an app wants to show a FilePicker while snapped, it must attempt to unsnap first
-            bool unsnapped = ((Windows.UI.ViewManagement.ApplicationView.Value != Windows.UI.ViewManagement.ApplicationViewState.Snapped) || Windows.UI.ViewManagement.ApplicationView.TryUnsnap());
+            bool unsnapped = ((Windows.UI.ViewManagement.ApplicationView.Value != Windows.UI.ViewManagement.ApplicationViewState.Snapped) ||
+                                Windows.UI.ViewManagement.ApplicationView.TryUnsnap());
+           
             if (!unsnapped)
             {
-                new Windows.UI.Popups.MessageDialog("Window must be unsnapped.").ShowAsync();
+                await new Windows.UI.Popups.MessageDialog("Window must be unsnapped.").ShowAsync();
             }
-
+            
             return unsnapped;
         }
     }
