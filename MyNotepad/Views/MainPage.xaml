@@ -20,13 +20,15 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!-- primary buttons -->
-                        <Setter Target="toggleButton.Visibility" Value="Collapsed" />
-                        <Setter Target="saveButton.Visibility" Value="Collapsed" />
+                        <Setter Target="createButton.Visibility" Value="Collapsed" />
                         <Setter Target="openButton.Visibility" Value="Collapsed" />
+                        <Setter Target="saveButton.Visibility" Value="Collapsed" />
+                        <Setter Target="toggleButton.Visibility" Value="Collapsed" />
                         <!-- secondary buttons -->
-                        <Setter Target="secondaryToggleButton.Visibility" Value="Visible" />
-                        <Setter Target="secondarySaveButton.Visibility" Value="Visible" />
+                        <Setter Target="secondaryCreateButton.Visibility" Value="Visible" />
                         <Setter Target="secondaryOpenButton.Visibility" Value="Visible" />
+                        <Setter Target="secondarySaveButton.Visibility" Value="Visible" />
+                        <Setter Target="secondaryToggleButton.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="WideVisualState">
@@ -35,13 +37,15 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!-- primary buttons -->
-                        <Setter Target="toggleButton.Visibility" Value="Visible" />
-                        <Setter Target="saveButton.Visibility" Value="Visible" />
+                        <Setter Target="createButton.Visibility" Value="Visible" />
                         <Setter Target="openButton.Visibility" Value="Visible" />
+                        <Setter Target="saveButton.Visibility" Value="Visible" />
+                        <Setter Target="toggleButton.Visibility" Value="Visible" />
                         <!-- secondary buttons -->
-                        <Setter Target="secondaryToggleButton.Visibility" Value="Collapsed" />
-                        <Setter Target="secondarySaveButton.Visibility" Value="Collapsed" />
+                        <Setter Target="secondaryCreateButton.Visibility" Value="Collapsed" />
                         <Setter Target="secondaryOpenButton.Visibility" Value="Collapsed" />
+                        <Setter Target="secondarySaveButton.Visibility" Value="Collapsed" />
+                        <Setter Target="secondaryToggleButton.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -66,33 +70,42 @@
             <CommandBar.Content>
                 <TextBlock Margin="12,8" FontSize="24" Text="{Binding File.Name}" />
             </CommandBar.Content>
-
+            
+            <!-- create button -->
+            <AppBarButton x:Name="createButton" Click="{x:Bind ViewModel.Create}"
+                          Icon="Add" Label="New" />
+            
+            <!--open button-->
+            <AppBarButton x:Name="openButton" Click="{x:Bind ViewModel.Open}"
+                          Icon="OpenFile" Label="Open" />
+            
             <!--save button-->
             <AppBarButton x:Name="saveButton" Click="{x:Bind ViewModel.Save}"
                           Icon="Save" Label="Save" />
 
-            <!--open button-->
-            <AppBarButton x:Name="openButton" Click="{x:Bind ViewModel.Open}"
-                          Icon="OpenFile" Label="Open" />
-
             <!--details toggle-->
-            <AppBarToggleButton x:Name="toggleButton" Icon="ClosePane" Label="Details"
+            <AppBarToggleButton x:Name="toggleButton" Icon="OpenPane" Label="About"
                                 IsChecked="{Binding IsPaneOpen, ElementName=splitView, Mode=TwoWay}" />
 
             <CommandBar.SecondaryCommands>
-                <!-- save button -->
-                <AppBarButton x:Name="secondarySaveButton" Click="{x:Bind ViewModel.Save}" Label="Save" />
+                <!-- create button -->
+                <AppBarButton x:Name="secondaryCreateButton" Click="{x:Bind ViewModel.Create}" Label="New" />
                 <!-- open button -->
                 <AppBarButton x:Name="secondaryOpenButton" Click="{x:Bind ViewModel.Open}" Label="Open" />
+                <!-- save button -->
+                <AppBarButton x:Name="secondarySaveButton" Click="{x:Bind ViewModel.Save}" Label="Save" />
                 <!-- details toggle -->
                 <AppBarToggleButton x:Name="secondaryToggleButton" IsChecked="{Binding IsPaneOpen, ElementName=splitView, Mode=TwoWay}"
-                                    Label="Details" />
+                                    Label="About" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
 
         <SplitView x:Name="splitView" Grid.Row="1">
             <SplitView.Pane>
-                <Rectangle Fill="LightSteelBlue" />
+                <StackPanel Background="LightSteelBlue">
+                    <TextBlock Text="About" />
+                    <TextBlock Text="Copyright 2017 XNODE Solutions,LLC"/>
+                </StackPanel>
             </SplitView.Pane>
             <SplitView.Content>
                 <TextBox x:Name="textBox" TextWrapping="Wrap"

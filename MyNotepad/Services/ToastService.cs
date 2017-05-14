@@ -70,5 +70,37 @@ namespace MyNotepad.Services
             }
             
         }
+        public void ShowToast(string message = "File not found")
+        {
+            var image = "https://raw.githubusercontent.com/Windows-XAML/Template10/master/Assets/Template10.png";
+
+            var content = new NotificationsExtensions.Toasts.ToastContent()
+                {
+                    Launch = "",
+                    Visual = new NotificationsExtensions.Toasts.ToastVisual()
+                    {
+                        TitleText = new NotificationsExtensions.Toasts.ToastText()
+                        {
+                            Text = "Request Cancelled."
+                        },
+                        BodyTextLine1 = new NotificationsExtensions.Toasts.ToastText()
+                        {
+                            Text = "File not found."
+                        },
+                        AppLogoOverride = new NotificationsExtensions.Toasts.ToastAppLogo()
+                        {
+                            Crop = NotificationsExtensions.Toasts.ToastImageCrop.Circle,
+                            Source = new NotificationsExtensions.Toasts.ToastImageSource(image)
+                        }
+                    },
+                    Audio = new NotificationsExtensions.Toasts.ToastAudio()
+                    {
+                        Src = new Uri("ms-winsoundevent:Notification.IM")
+                    }
+                };
+                var notification = new Windows.UI.Notifications.ToastNotification(content.GetXml());
+                var notifier = Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier();
+                notifier.Show(notification);
+        }
     }
 }

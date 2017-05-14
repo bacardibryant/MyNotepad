@@ -35,6 +35,19 @@ namespace MyNotepad.ViewModels
         Services.FileService _FileService = new Services.FileService();
         Services.ToastService _ToastService = new Services.ToastService();
 
+        public async void Create()
+        {
+            // Create sample file; replace if exists.
+            Windows.Storage.StorageFolder storageFolder =
+                Windows.Storage.ApplicationData.Current.LocalFolder;
+            Windows.Storage.StorageFile sampleFile = await storageFolder.CreateFileAsync("untitled.txt",
+                    Windows.Storage.CreationCollisionOption.ReplaceExisting);
+
+            File = await _FileService.LoadAsync(sampleFile);
+
+            await sampleFile.DeleteAsync(Windows.Storage.StorageDeleteOption.PermanentDelete);
+        }
+
         public async void Open()
         {
             // prompt a picker
@@ -48,7 +61,8 @@ namespace MyNotepad.ViewModels
 
             var file = await picker.PickSingleFileAsync();
             if (file == null)
-                await new Windows.UI.Popups.MessageDialog("No file selected.").ShowAsync();
+                //await new Windows.UI.Popups.MessageDialog("No file selected.").ShowAsync();
+            _ToastService.ShowToast("No file selected.");
             else
                 File = await _FileService.LoadAsync(file);
         }
@@ -70,6 +84,13 @@ namespace MyNotepad.ViewModels
                 };
 
                 // use a save file picker to allow the user to save the file.
+                GetPicker(File);
+            }
+            // not sure if this is a good idea.
+            //I'm trying to force avoid saving in appdata folder.
+            //But what about phones and cloud storage
+            else if (File.Ref.Path.Contains("AppData")) 
+            {
                 GetPicker(File);
             }
             else
@@ -106,7 +127,7 @@ namespace MyNotepad.ViewModels
                 savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
                 
                 // Default file name if the user does not type one in or select a file to replace
-                savePicker.SuggestedFileName = "New Document";
+                savePicker.SuggestedFileName = "Untitled.txt";
 
                 // the save file picker returns an instance of windows storage file when the file is saved.
                 // if the user clicks cancel on the save dialog, the storage file object will be null.
@@ -128,6 +149,9 @@ namespace MyNotepad.ViewModels
                     // populate model fields to be used in toast notifications.
                     model.Name = file.Name;
                     model.Ref = file;
+
+                    // update the property so that the INotifyPropertyChangedEvent is fired.
+                    File = model;
 
                     // when the file update status is complete, notify the user that the file save was successful.
                     if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
