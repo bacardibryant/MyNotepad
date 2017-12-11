@@ -1,4 +1,7 @@
-﻿using System;
+﻿using NotificationsExtensions;
+using NotificationsExtensions.Toasts;
+using System;
+using Windows.UI.Notifications;
 
 namespace MyNotepad.Services
 {
@@ -15,18 +18,21 @@ namespace MyNotepad.Services
                     Launch = "",
                     Visual = new NotificationsExtensions.Toasts.ToastVisual()
                     {
-                        TitleText = new NotificationsExtensions.Toasts.ToastText()
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                            Text = "User Cancelled."
-                        },
-                        BodyTextLine1 = new NotificationsExtensions.Toasts.ToastText()
-                        {
-                            Text = "File save cancelled."
-                        },
-                        AppLogoOverride = new NotificationsExtensions.Toasts.ToastAppLogo()
-                        {
-                            Crop = NotificationsExtensions.Toasts.ToastImageCrop.Circle,
-                            Source = new NotificationsExtensions.Toasts.ToastImageSource(image)
+                            AppLogoOverride = new ToastGenericAppLogo
+                            {
+                                HintCrop = ToastGenericAppLogoCrop.Circle,
+                                Source = image
+                            },
+                            Children =
+                            {
+                                new AdaptiveText {Text = "File save cancelled." }
+                            },
+                            Attribution = new ToastGenericAttributionText
+                            {
+                                Text = "User Cancelled."
+                            },
                         }
                     },
                     Audio = new NotificationsExtensions.Toasts.ToastAudio()
@@ -34,29 +40,33 @@ namespace MyNotepad.Services
                         Src = new Uri("ms-winsoundevent:Notification.IM")
                     }
                 };
-                var notification = new Windows.UI.Notifications.ToastNotification(content.GetXml());
-                var notifier = Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier();
-                notifier.Show(notification);
+                var notification = new ToastNotification(content.GetXml());
+                ToastNotificationManager.CreateToastNotifier().Show(notification);
+                
             }
             else
             {
+                
                 var content = new NotificationsExtensions.Toasts.ToastContent()
                 {
                     Launch = file.Ref.Path,
                     Visual = new NotificationsExtensions.Toasts.ToastVisual()
                     {
-                        TitleText = new NotificationsExtensions.Toasts.ToastText()
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                            Text = message
-                        },
-                        BodyTextLine1 = new NotificationsExtensions.Toasts.ToastText()
-                        {
-                            Text = file.Name
-                        },
-                        AppLogoOverride = new NotificationsExtensions.Toasts.ToastAppLogo()
-                        {
-                            Crop = NotificationsExtensions.Toasts.ToastImageCrop.Circle,
-                            Source = new NotificationsExtensions.Toasts.ToastImageSource(image)
+                            AppLogoOverride = new ToastGenericAppLogo
+                            {
+                                HintCrop = ToastGenericAppLogoCrop.Circle,
+                                Source = image
+                            },
+                            Children =
+                            {
+                                new AdaptiveText {Text = file.Name }
+                            },
+                            Attribution = new ToastGenericAttributionText
+                            {
+                                Text = message
+                            },
                         }
                     },
                     Audio = new NotificationsExtensions.Toasts.ToastAudio()
@@ -64,9 +74,8 @@ namespace MyNotepad.Services
                         Src = new Uri("ms-winsoundevent:Notification.IM")
                     }
                 };
-                var notification = new Windows.UI.Notifications.ToastNotification(content.GetXml());
-                var notifier = Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier();
-                notifier.Show(notification);
+                var notification = new ToastNotification(content.GetXml());
+                ToastNotificationManager.CreateToastNotifier().Show(notification);
             }
             
         }
@@ -79,18 +88,21 @@ namespace MyNotepad.Services
                     Launch = "",
                     Visual = new NotificationsExtensions.Toasts.ToastVisual()
                     {
-                        TitleText = new NotificationsExtensions.Toasts.ToastText()
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                            Text = "Request Cancelled."
-                        },
-                        BodyTextLine1 = new NotificationsExtensions.Toasts.ToastText()
-                        {
-                            Text = "File not found."
-                        },
-                        AppLogoOverride = new NotificationsExtensions.Toasts.ToastAppLogo()
-                        {
-                            Crop = NotificationsExtensions.Toasts.ToastImageCrop.Circle,
-                            Source = new NotificationsExtensions.Toasts.ToastImageSource(image)
+                            AppLogoOverride = new ToastGenericAppLogo
+                            {
+                                HintCrop = ToastGenericAppLogoCrop.Circle,
+                                Source = image
+                            },
+                            Children =
+                            {
+                                new AdaptiveText {Text = "File not found." }
+                            },
+                            Attribution = new ToastGenericAttributionText
+                            {
+                                Text = "Request Cancelled."
+                            },
                         }
                     },
                     Audio = new NotificationsExtensions.Toasts.ToastAudio()

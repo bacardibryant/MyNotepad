@@ -6,11 +6,17 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using MyNotepad.Views;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace MyNotepad.ViewModels
 {
     public class MainPageViewModel : INotifyPropertyChanged
     {
+        // get the current frame so that you can get the contents of the textbox.
+        public static Frame frame = (Frame)Window.Current.Content;
+        public static MainPage page = (MainPage)frame.Content;
+        public static TextBox textBox = (TextBox)page.FindName("textBox");
+
         public MainPageViewModel()
         {
             //add event listener to the view model in the constructor.
@@ -40,7 +46,7 @@ namespace MyNotepad.ViewModels
             // Create sample file; replace if exists.
             Windows.Storage.StorageFolder storageFolder =
                 Windows.Storage.ApplicationData.Current.LocalFolder;
-            Windows.Storage.StorageFile sampleFile = await storageFolder.CreateFileAsync("untitled.txt",
+            Windows.Storage.StorageFile sampleFile = await storageFolder.CreateFileAsync("Untitled.txt",
                     Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
             File = await _FileService.LoadAsync(sampleFile);
@@ -73,9 +79,9 @@ namespace MyNotepad.ViewModels
             if (File == null)
             {
                 // get the current frame so that you can get the contents of the textbox.
-                Frame frame = (Frame)Window.Current.Content;
-                MainPage page = (MainPage)frame.Content;
-                TextBox textBox = (TextBox)page.FindName("textBox");
+                //Frame frame = (Frame)Window.Current.Content;
+                //MainPage page = (MainPage)frame.Content;
+                //TextBox textBox = (TextBox)page.FindName("textBox");
 
                 // set text value to contents of textbox or to an empty string.
                 File = new Models.FileInfo
@@ -114,7 +120,8 @@ namespace MyNotepad.ViewModels
         {
             //if the application window is snapped the save file picker will not display
             //so ensure that it isn't snapped.
-            var unSnapped = await EnsureUnsnapped();
+            //var unSnapped = await EnsureUnsnapped();
+            var unSnapped = true;
             if (unSnapped)
             {
                 //instantiate a save file picker and set it's default location to the 'Documents' folder.
@@ -131,7 +138,7 @@ namespace MyNotepad.ViewModels
 
                 // the save file picker returns an instance of windows storage file when the file is saved.
                 // if the user clicks cancel on the save dialog, the storage file object will be null.
-                Windows.Storage.StorageFile file = await savePicker.PickSaveFileAsync();
+                StorageFile file = await savePicker.PickSaveFileAsync();
 
                 // if the file is not null
                 if (file != null)
@@ -176,24 +183,30 @@ namespace MyNotepad.ViewModels
                     // moved from using MessageDialogs to ToastNotifications
                     //await new Windows.UI.Popups.MessageDialog("Save cancelled.").ShowAsync();
                     _ToastService.ShowToast(model, "Save cancelled.");
+
+                    //if user cancels the save, set the file to null.
+                    File = null;
                 }
+                //restore contents of textbox.
+                textBox.Text = model.Text;
             }
         }
 
         //TODO:Address obsolete code.
-        internal async Task<bool> EnsureUnsnapped()
-        {
+        //internal async Task<bool> EnsureUnsnapped()
+        //{
             // FilePicker APIs will not work if the application is in a snapped state.
             // If an app wants to show a FilePicker while snapped, it must attempt to unsnap first
-            bool unsnapped = ((Windows.UI.ViewManagement.ApplicationView.Value != Windows.UI.ViewManagement.ApplicationViewState.Snapped) ||
-                                Windows.UI.ViewManagement.ApplicationView.TryUnsnap());
-           
-            if (!unsnapped)
-            {
-                await new Windows.UI.Popups.MessageDialog("Window must be unsnapped.").ShowAsync();
-            }
-            
-            return unsnapped;
-        }
+            //bool unsnapped = ((Windows.UI.ViewManagement.ApplicationView.Value != Windows.UI.ViewManagement.ApplicationViewState.Snapped) ||
+            //                    Windows.UI.ViewManagement.ApplicationView.TryUnsnap());
+
+            //if (!unsnapped)
+            //{
+            //    await new Windows.UI.Popups.MessageDialog("Window must be unsnapped.").ShowAsync();
+            //}
+
+            //return unsnapped;
+            //return true;
+        //}
     }
 }

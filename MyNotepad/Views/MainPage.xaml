@@ -1,4 +1,4 @@
-﻿<Page
+﻿<Page Margin="0" Padding="0"
     x:Class="MyNotepad.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,11 +7,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MyNotepad.ViewModels"
     mc:Ignorable="d">
+
     <Page.DataContext>
         <vm:MainPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
-        
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="VisualStateGroup">
                 <VisualState x:Name="NarrowVisualState">
@@ -50,68 +56,56 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        
-        <!--- Basic Command Bar -->
-        <!--<CommandBar Background="SteelBlue" RequestedTheme="Dark">
+        <CommandBar Background="SteelBlue" RequestedTheme="Dark" Margin="0">
             <CommandBar.Content>
-                <TextBlock Margin="12,8" FontSize="24" Text="My Notepad" />
+                <TextBlock Padding="10" FontSize="18" Text="{Binding File.Name}" />
             </CommandBar.Content>
-            <AppBarToggleButton x:Name="toggleButton" Icon="ClosePane" Label="Details"
-                                IsChecked="{Binding IsPaneOpen, ElementName=splitView, Mode=TwoWay}" />
-        </CommandBar>-->
 
-        <CommandBar Background="SteelBlue" RequestedTheme="Dark">
-            <CommandBar.Content>
-                <TextBlock Margin="12,8" FontSize="24" Text="{Binding File.Name}" />
-            </CommandBar.Content>
-            
             <!-- create button -->
             <AppBarButton x:Name="createButton" Click="{x:Bind ViewModel.Create}"
-                          Icon="Add" Label="New" />
-            
+                Icon="Add" Label="New" />
+
             <!--open button-->
             <AppBarButton x:Name="openButton" Click="{x:Bind ViewModel.Open}"
-                          Icon="OpenFile" Label="Open" />
-            
+                Icon="OpenFile" Label="Open" />
+
             <!--save button-->
             <AppBarButton x:Name="saveButton" Click="{x:Bind ViewModel.Save}"
-                          Icon="Save" Label="Save" />
+                Icon="Save" Label="Save" />
 
             <!--details toggle-->
             <AppBarToggleButton x:Name="toggleButton" Icon="OpenPane" Label="About"
-                                IsChecked="{Binding IsPaneOpen, ElementName=splitView, Mode=TwoWay}" />
+                IsChecked="{Binding IsPaneOpen, ElementName=splitView, Mode=TwoWay}" />
 
             <CommandBar.SecondaryCommands>
                 <!-- create button -->
-                <AppBarButton x:Name="secondaryCreateButton" Click="{x:Bind ViewModel.Create}" Label="New" />
+                <AppBarButton x:Name="secondaryCreateButton"
+                    Click="{x:Bind ViewModel.Create}" Label="New" />
                 <!-- open button -->
-                <AppBarButton x:Name="secondaryOpenButton" Click="{x:Bind ViewModel.Open}" Label="Open" />
+                <AppBarButton x:Name="secondaryOpenButton"
+                    Click="{x:Bind ViewModel.Open}" Label="Open" />
                 <!-- save button -->
-                <AppBarButton x:Name="secondarySaveButton" Click="{x:Bind ViewModel.Save}" Label="Save" />
+                <AppBarButton x:Name="secondarySaveButton"
+                    Click="{x:Bind ViewModel.Save}" Label="Save" />
                 <!-- details toggle -->
-                <AppBarToggleButton x:Name="secondaryToggleButton" IsChecked="{Binding IsPaneOpen, ElementName=splitView, Mode=TwoWay}"
-                                    Label="About" />
+                <AppBarToggleButton x:Name="secondaryToggleButton"
+                    IsChecked="{Binding IsPaneOpen, ElementName=splitView, Mode=TwoWay}"
+                    Label="About" />
             </CommandBar.SecondaryCommands>
-        </CommandBar>
-
-        <SplitView x:Name="splitView" Grid.Row="1">
+            </CommandBar>
+        <SplitView x:Name="splitView" Grid.Row="1" IsPaneOpen="False">
             <SplitView.Pane>
                 <StackPanel Background="LightSteelBlue">
-                    <TextBlock Text="About" />
-                    <TextBlock Text="Copyright 2017 XNODE Solutions,LLC"/>
+                    <TextBlock Text="About" Padding="5" />
+                    <TextBlock x:Name="copyrightTextBlock" FontSize="12"
+                               Text="XNODE Solutions, LLC" Padding="5"/>
                 </StackPanel>
             </SplitView.Pane>
             <SplitView.Content>
                 <TextBox x:Name="textBox" TextWrapping="Wrap"
                          Text="{Binding File.Text, Mode=TwoWay,
                          UpdateSourceTrigger=PropertyChanged}"
-                         AcceptsReturn="True" Margin="0" />
+                         AcceptsReturn="True" Padding="10" Margin="0" Background="{x:Null}" BorderBrush="{x:Null}" BorderThickness="0" />
             </SplitView.Content>
         </SplitView>
     </Grid>
