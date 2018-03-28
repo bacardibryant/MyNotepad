@@ -97,8 +97,8 @@
             <SplitView.Pane>
                 <StackPanel Background="LightSteelBlue">
                     <TextBlock Text="About" Padding="5" />
-                    <TextBlock x:Name="copyrightTextBlock" FontSize="12"
-                               Text="XNODE Solutions, LLC" Padding="5"/>
+                    <TextBlock x:Name="copyrightTextBlock" FontSize="12" TextWrapping="WrapWholeWords"
+                               Text="Sample UWP Application adapted from an @jerrynixon MVA course. This expanded sample introduces additonal file operations." Padding="5"/>
                 </StackPanel>
             </SplitView.Pane>
             <SplitView.Content>
